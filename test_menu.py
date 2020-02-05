@@ -9,9 +9,8 @@ from attack import Attack
 from interface import *
 from weapon import *
 from levels import Board
+from config import *
 
-WIN_WIDTH = 800
-WIN_HEIGHT = 640
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
 
 levels = ['level2.txt', 'level.txt', 'level_1.txt']
@@ -63,36 +62,8 @@ def main():
 
     while run:
         if stage == 'menu':
-            bg = Surface((WIN_WIDTH, WIN_HEIGHT))
-            bg.fill(menu_color)
-            screen.blit(bg, (0, 0))
-            choice = ''
-            menu_font = pygame.font.SysFont('None', 100)
+            stage, run = menu(screen, run)
 
-            if play_flag:
-                play_color = (255, 204, 0)
-                level_color = (255, 0, 0)
-            else:
-                play_color = (255, 0, 0)
-                level_color = (255, 204, 0)
-
-            play_image = menu_font.render('Play', 5, play_color)
-            level_image = menu_font.render('Levels', 5, level_color)
-
-            screen.blit(play_image, (140, 200))
-            screen.blit(level_image, (140, 300))
-
-            for e in pygame.event.get():
-                if e.type == QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
-                    run = False
-                if e.type == MOUSEBUTTONDOWN:
-                    if not play_flag:
-                        stage = 'main_game'
-                    else:
-                        stage = 'levels'
-                if e.type == MOUSEMOTION:
-                    x, y = e.pos
-                    play_flag = True if y > 300 else False
 
         if stage == 'levels':
             running = True
@@ -145,6 +116,7 @@ def main():
             ends = []
             perks = []
             bombs = []
+            buttons = []
 
             entities = pygame.sprite.Group()
             platforms = []
@@ -172,6 +144,9 @@ def main():
                     elif col == "/":
                         pf = Perk(x, y)
                         perks.append(pf)
+                    elif col == "*":
+                        bt = Button(x, y)
+                        buttons.append(bt)
                     elif col == "+":
                         helicopter = Helicopter(x, y)
                         platforms.append(helicopter)
@@ -224,17 +199,19 @@ def main():
                         left = True
                     if e.type == KEYDOWN and e.key == K_d:
                         right = True
-
                     if e.type == KEYDOWN and e.key == K_s:
                         down = False
-
                     if e.type == KEYUP and e.key == K_s:
                         down = True
-
                     if e.type == KEYDOWN and e.key == K_r:
                         hero.weapon.reload()
 
-                    if e.type == KEYDOWN and e.key == K_p:
+                    if e.type == KEYDOWN and e.key == K_e:
+                        for b in buttons:
+                            if b.rect.colliderect(hero):
+                                b.push()
+
+                    if e.type == KEYDOWN and e.key == K_p and hero.perks > 0:
                         hero.perks -= 1
                         pos_call = hero.rect.center
                         hel = Helicopter(hero.rect.x - 1000, hero.rect.y - 1000)
@@ -278,7 +255,10 @@ def main():
                         hit = Attack(x, y)
 
                 screen.blit(bg, camera.apply(bg))
-                print(bombs)
+
+                for b in buttons:
+                    screen.blit(b.image, camera.apply(b))
+
                 if hel != -1:
                     hel.update(pos_call, bombs)
                     screen.blit(hel.image, camera.apply(hel))
@@ -364,7 +344,10 @@ def main():
                         enemy_bullits.remove(b)
                     if b.collide([hero]):
                         hero.hp -= b.damage
-                        enemy_bullits.remove(b)
+                        try:
+                            enemy_bullits.remove(b)
+                        except:
+                            pass
                     screen.blit(b.image, camera.apply(b))
 
                 hero.image.set_colorkey((255, 255, 255))
@@ -376,7 +359,7 @@ def main():
 
                 if hero.hp <= 0:
                     hero_alive = False
-                    udied(WIN_HEIGHT, WIN_WIDTH, screen)
+                    udied(screen)
 
                 for e in ends:
                     if hero.rect.colliderect(e.rect):

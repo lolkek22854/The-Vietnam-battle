@@ -1,7 +1,7 @@
 import random
 from pygame import *
 from player import Player
-from shot import Shot
+from weapon import *
 import pyganim
 import os
 
@@ -35,6 +35,7 @@ class Enemy(Player):
         sprite.Sprite.__init__(self)
         Player.__init__(self, x, y)
         self.speed = random.randint(1, 3)
+        self.weapon = random.choice([Pistol(), Shotgun(), Ak47()])
         self.alarm = False
         self.right = True
         self.left = False

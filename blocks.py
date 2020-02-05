@@ -47,11 +47,17 @@ class Perk(Platform):
 class End(sprite.Sprite):
     def __init__(self, x, y):
         sprite.Sprite.__init__(self)
-        self.image = Surface((PLATFORM_WIDTH, PLATFORM_HEIGHT))
-        self.image.fill(Color(PLATFORM_COLOR))
-        self.image = image.load("%s/blocks/ladder.png" % ICON_DIR)
+        self.image = image.load("%s/blocks/end.png" % ICON_DIR)
         self.image.set_colorkey((255, 255, 255))
-        self.rect = Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)
+        self.rect = Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT * 2)
+
+
+class Door(sprite.Sprite):
+    def __init__(self, x, y):
+        sprite.Sprite.__init__(self)
+        self.image = image.load("%s/blocks/end.png" % ICON_DIR)
+        self.image.set_colorkey((255, 255, 255))
+        self.rect = Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT * 2)
 
 
 class Helicopter(sprite.Sprite):
@@ -86,7 +92,19 @@ class Helicopter(sprite.Sprite):
         self.steps += 1
 
     def shoot(self, bombs):
-        bombs.append(Bomb(self.rect.x, self.rect.y))
+        bombs.append(Bomb(self.rect.x, self.rect.y - 200))
+
+
+class Button(sprite.Sprite):
+    def __init__(self, x, y):
+        sprite.Sprite.__init__(self)
+        self.image = image.load("%s/blocks/button_off.png" % ICON_DIR)
+        self.rect = Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)
+        self.is_on = False
+
+    def push(self):
+        self.is_on = True
+        self.image = image.load("%s/blocks/button_on.png" % ICON_DIR)
 
 
 class Bomb(sprite.Sprite):
