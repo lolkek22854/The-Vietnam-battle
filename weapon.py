@@ -1,6 +1,5 @@
 from pygame import *
 
-
 class Weapon(sprite.Sprite):
     def __init__(self):
         sprite.Sprite.__init__(self)

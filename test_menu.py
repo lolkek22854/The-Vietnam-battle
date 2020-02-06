@@ -3,7 +3,7 @@ import pygame
 from pygame import *
 from player import Player
 from blocks import *
-from shot import Shot
+# from shot import Shot
 from enemy import Enemy
 from attack import Attack
 from interface import *
@@ -57,8 +57,6 @@ def main():
     run = True
     play_flag = False
     menu_color = (28, 91, 237)
-    # mixer.music.load("Mortal Kombat_-_Scorpion Theme.mp3")
-    # mixer.music.play(-1)
 
     while run:
         if stage == 'menu':
@@ -97,7 +95,7 @@ def main():
         if stage == 'main_game':
             bg = pygame.image.load('back.png').convert()
             hero = Player(55, 55)
-            left = right = False  # по умолчанию - стоим
+            left = right = False
             up = False
             ctrl = False
             down = True
@@ -106,9 +104,9 @@ def main():
             hel = -1
             pos_call = (-1, -1)
             helicopter = Helicopter(0, 0)
-            # sound_shoot = pygame.mixer.Sound('boom.wav')
             shots = []
             enemy_bullits = []
+            beacon = -1
 
             enemies = []
             lattices = []
@@ -117,6 +115,10 @@ def main():
             perks = []
             bombs = []
             buttons = []
+            doors = []
+            doors_to_buttons = {}
+            medkits = []
+            # doors = {}
 
             entities = pygame.sprite.Group()
             platforms = []
@@ -137,6 +139,12 @@ def main():
                         pf = Platform(x, y)
                         entities.add(pf)
                         platforms.append(pf)
+                    elif col in 'ABC':
+                        d = Door(x, y, col)
+                        doors.append(d)
+                    elif col in 'abc':
+                        bt = Button(x, y, col)
+                        buttons.append(bt)
                     elif col == "@":
                         pf = End(x, y)
                         entities.add(pf)
@@ -145,11 +153,12 @@ def main():
                         pf = Perk(x, y)
                         perks.append(pf)
                     elif col == "*":
-                        bt = Button(x, y)
-                        buttons.append(bt)
+                        bt = Medkit(x, y)
+                        medkits.append(bt)
                     elif col == "+":
                         helicopter = Helicopter(x, y)
                         platforms.append(helicopter)
+                        helicopter.sound.play()
                     elif col == '|':
                         pf = Lattice(x, y)
                         lattices.append(pf)
@@ -168,6 +177,12 @@ def main():
                     x += PLATFORM_WIDTH
                 y += PLATFORM_HEIGHT
                 x = 0
+
+            for i in range(len(doors)):
+                d = doors[i]
+                for b in buttons:
+                    if d.ch.lower() == b.ch:
+                        doors_to_buttons[b] = i
 
             total_level_width = len(level[0]) * PLATFORM_WIDTH
             total_level_height = len(level) * PLATFORM_HEIGHT
@@ -210,12 +225,15 @@ def main():
                         for b in buttons:
                             if b.rect.colliderect(hero):
                                 b.push()
+                                doors[doors_to_buttons.get(b, 0)].open()
 
                     if e.type == KEYDOWN and e.key == K_p and hero.perks > 0:
                         hero.perks -= 1
-                        pos_call = hero.rect.center
-                        hel = Helicopter(hero.rect.x - 1000, hero.rect.y - 1000)
-
+                        x, y = hero.rect.center
+                        beacon = Beacon(x, y)
+                        beacon.spx = 20
+                        beacon.spy = 10
+                        beacon.sound.play()
                     if e.type == KEYUP and e.key == K_w:
                         up = False
                     if e.type == KEYUP and e.key == K_d:
@@ -259,7 +277,38 @@ def main():
                 for b in buttons:
                     screen.blit(b.image, camera.apply(b))
 
+                for m in medkits:
+                    screen.blit(m.image, camera.apply(m))
+                    if m.rect.colliderect(hero.rect):
+                        hero.hp += 20
+                        medkits.remove(m)
+
+                for d in doors:
+                    if not d.is_opened and d not in platforms:
+                        platforms.append(d)
+                    if d.is_opened and d in platforms:
+                        platforms.remove(d)
+                    screen.blit(d.image, camera.apply(d))
+
+                if beacon != -1:
+                    # print(beacon.spx)
+                    if beacon.change_flag:
+                        beacon.rect.x -= beacon.spx
+                        beacon.spx -= 1
+                        beacon.rect.y -= beacon.spy
+                        beacon.spy -= 1
+                    screen.blit(beacon.image, camera.apply(beacon))
+                    if beacon.spx < 0:
+                        beacon.spy = 0
+                        beacon.spx = 0
+                        beacon.change_flag = False
+                        pos_call = beacon.rect.center
+                        hel = Helicopter(pos_call[0] - 1000, pos_call[1] - 1000)
+                        hel.sound.play()
+
+
                 if hel != -1:
+                    # print('g')
                     hel.update(pos_call, bombs)
                     screen.blit(hel.image, camera.apply(hel))
 
@@ -271,6 +320,9 @@ def main():
 
                 if abs(hero.rect.x - helicopter.rect.x) in range(20, 1000):
                     helicopter.fly_away()
+
+                # if abs(hero.rect.x - helicopter.rect.x) > 1000:
+                #     helicopter = -1
 
                 screen.blit(helicopter.image, (camera.apply(helicopter)[0] - 580, camera.apply(helicopter)[1] - 280))
 

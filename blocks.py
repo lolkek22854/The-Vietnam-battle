@@ -1,11 +1,12 @@
 from pygame import *
 import pygame
-import os
+from config import *
 
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
 PLATFORM_COLOR = "#FF6262"
-ICON_DIR = os.path.dirname(__file__)  # Полный путь к каталогу с файлами
+# reload_sound = pygame.mixer.Sound("/sounds/03038.mp3")
+
 
 
 class Platform(sprite.Sprite):
@@ -40,7 +41,7 @@ class Perk(Platform):
     def __init__(self, x, y):
         sprite.Sprite.__init__(self)
         Platform.__init__(self, x, y)
-        self.image = image.load("%s/mario/death.png" % ICON_DIR)
+        self.image = image.load("%s/blocks/beacon.bmp" % ICON_DIR)
         self.image.set_colorkey((255, 255, 255))
 
 
@@ -53,17 +54,42 @@ class End(sprite.Sprite):
 
 
 class Door(sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y,ch):
         sprite.Sprite.__init__(self)
+        self.ch = ch
         self.image = image.load("%s/blocks/end.png" % ICON_DIR)
         self.image.set_colorkey((255, 255, 255))
         self.rect = Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT * 2)
+        self.is_opened = False
+
+    def open(self):
+        self.is_opened = True
+        self.image = Surface((PLATFORM_WIDTH, PLATFORM_HEIGHT))
+
+
+class Medkit(Platform):
+    def __init__(self, x, y):
+        Platform.__init__(self, x, y)
+        self.image = image.load("%s/blocks/heal.png" % ICON_DIR)
+
+
+class Beacon(sprite.Sprite):
+    def __init__(self, x, y):
+        sprite.Sprite.__init__(self)
+        self.spx = 0
+        self.spy = 0
+        self.sound = mixer.Sound('sounds/beep.wav')
+        self.change_flag = True
+        self.image = image.load("%s/blocks/beacon.bmp" % ICON_DIR)
+        self.image.set_colorkey((255, 255, 255))
+        self.rect = Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)
 
 
 class Helicopter(sprite.Sprite):
     def __init__(self, x, y):
         self.spy = 5
         self.shoot_flag = True
+        self.sound = mixer.Sound('sounds/helicopter.ogg')
         self.spx = 5
         self.steps = 0
         sprite.Sprite.__init__(self)
@@ -96,14 +122,17 @@ class Helicopter(sprite.Sprite):
 
 
 class Button(sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, ch):
         sprite.Sprite.__init__(self)
+        self.ch = ch
+        self.sound = mixer.Sound('sounds/turn.ogg')
         self.image = image.load("%s/blocks/button_off.png" % ICON_DIR)
         self.rect = Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)
         self.is_on = False
 
     def push(self):
         self.is_on = True
+        self.sound.play()
         self.image = image.load("%s/blocks/button_on.png" % ICON_DIR)
 
 
@@ -112,6 +141,7 @@ class Bomb(sprite.Sprite):
         sprite.Sprite.__init__(self)
         self.rect = Rect(x - 50, y - 100, 150, 100)
         self.boom = False
+        self.sound = mixer.Sound('sounds/bahh.ogg')
         self.boom_count = 10
         self.sprite = AnimatedSprite(image.load("sprites/boom.bmp"), 4, 4, 50, 50)
         self.image = image.load('sprites/bomb.bmp')
@@ -121,6 +151,8 @@ class Bomb(sprite.Sprite):
         if self.rect.y < y - 50:
             self.rect.y += 5
         else:
+            if not self.boom:
+                self.sound.play()
             self.boom = True
             self.sprite.update()
             self.image = self.sprite.image
