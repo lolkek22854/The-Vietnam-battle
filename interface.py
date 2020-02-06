@@ -68,6 +68,9 @@ def udied(screen):
 
 def menu(screen, run):
     r = True
+    # mixer.music.load("sounds/HelloVietnam.mp3")
+    # mixer.music.play(-1)
+    mixer.music.set_volume(0.15)
     play_flag = False
     menu_color = (28, 91, 237)
     stage = 'q'
@@ -101,8 +104,10 @@ def menu(screen, run):
                 r = False
             if e.type == MOUSEBUTTONDOWN:
                 if not play_flag:
+                    # mixer.music.pause()
                     return 'main_game', True
                 else:
+                    # mixer.music.pause()
                     return 'levels', True
             if e.type == MOUSEMOTION:
                 x, y = e.pos

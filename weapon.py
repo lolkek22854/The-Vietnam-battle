@@ -38,6 +38,7 @@ class Shotgun(Weapon):
         Weapon.__init__(self)
         self.image = image.load('sprites/sg.bmp')
         self.image.set_colorkey((255, 255, 255))
+        self.sound = mixer.Sound('sounds/shotgun.wav')
         self.hit = 3
         self.max_ammo = 5
         self.weight = 5

@@ -79,8 +79,10 @@ class Beacon(sprite.Sprite):
         self.spx = 0
         self.spy = 0
         self.direction = False
+        self.on_earth = False
         self.sound = mixer.Sound('sounds/beep.wav')
         self.change_flag = True
+        self.dead_frames = 50
         self.image = image.load("%s/blocks/beacon.bmp" % ICON_DIR)
         self.image.set_colorkey((255, 255, 255))
         self.rect = Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)

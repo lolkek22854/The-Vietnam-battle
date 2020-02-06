@@ -1,5 +1,4 @@
 import pygame
-
 from pygame import *
 from player import Player
 from blocks import *
@@ -123,7 +122,7 @@ def main():
             entities = pygame.sprite.Group()
             platforms = []
 
-            fl = open('level_1', 'r')
+            fl = open(LEVELS[level_num - 1], 'r')
             level = fl.read().split('\n')
             fl.close()
 
@@ -231,7 +230,7 @@ def main():
                     if e.type == KEYDOWN and e.key == K_p and hero.perks > 0:
                         hero.perks -= 1
                         x, y = hero.rect.center
-                        beacon = Beacon(x, y)
+                        beacon = Beacon(x, y - 10)
                         beacon.direction = hero.direction
                         beacon.spx = 20
                         beacon.spy = 10
@@ -293,7 +292,6 @@ def main():
                     screen.blit(d.image, camera.apply(d))
 
                 if beacon != -1:
-                    # print(beacon.spx)
                     if beacon.change_flag:
                         if not beacon.direction:
                             beacon.rect.x -= beacon.spx
@@ -301,16 +299,25 @@ def main():
                         else:
                             beacon.rect.x += beacon.spx
                             beacon.spx -= 1
+                        if beacon.spy < 0:
+                            beacon.spy = -6
+                        if beacon.spx < 0:
+                            beacon.spx = 0
                         beacon.rect.y -= beacon.spy
                         beacon.spy -= 1
+                        for p in platforms:
+                            if p.rect.colliderect(beacon.rect):
+                                beacon.spy = 0
+                                beacon.spx = 0
+                                beacon.change_flag = False
+                                pos_call = beacon.rect.center
+                                hel = Helicopter(pos_call[0] - 1000, pos_call[1] - 1000)
+                                hel.sound.play()
+                    else:
+                        beacon.dead_frames -= 1
                     screen.blit(beacon.image, camera.apply(beacon))
-                    if beacon.spx < 0:
-                        beacon.spy = 0
-                        beacon.spx = 0
-                        beacon.change_flag = False
-                        pos_call = beacon.rect.center
-                        hel = Helicopter(pos_call[0] - 1000, pos_call[1] - 1000)
-                        hel.sound.play()
+                    if beacon.dead_frames < 0:
+                        beacon = -1
 
 
                 if hel != -1:
@@ -422,7 +429,8 @@ def main():
                 for e in ends:
                     if hero.rect.colliderect(e.rect):
                         running = False
-                        stage = 'menu'
+                        stage = 'main_game'
+                        level_num += 1
 
                 for p in perks:
                     if p.rect.colliderect(hero.rect):

@@ -114,7 +114,7 @@ class Enemy(Player):
 
     def can_see(self, hero):
         if not self.alarm:
-            if abs(self.rect.centerx - hero.rect.centerx) < 600 and abs(self.rect.centery - hero.rect.centery) < 5:
+            if abs(self.rect.centerx - hero.rect.centerx) < 300 and abs(self.rect.centery - hero.rect.centery) < 5:
                 self.alarm = True
         else:
             if abs(self.rect.centerx - hero.rect.centerx) > 400:
