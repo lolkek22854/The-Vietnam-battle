@@ -78,6 +78,7 @@ class Beacon(sprite.Sprite):
         sprite.Sprite.__init__(self)
         self.spx = 0
         self.spy = 0
+        self.direction = False
         self.sound = mixer.Sound('sounds/beep.wav')
         self.change_flag = True
         self.image = image.load("%s/blocks/beacon.bmp" % ICON_DIR)

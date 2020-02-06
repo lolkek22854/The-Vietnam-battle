@@ -6,6 +6,7 @@ class Weapon(sprite.Sprite):
         self.rect = Rect(0, 0, 10, 10)
         self.image = image.load('blocks/platform.png')
         self.sound = mixer.Sound('sounds/03038.ogg')
+        self.reload_sound = mixer.Sound('sounds/reload.ogg')
         self.hit = 0
         self.max_ammo = 0
         self.ammo = self.max_ammo

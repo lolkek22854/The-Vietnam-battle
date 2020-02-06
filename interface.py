@@ -29,6 +29,7 @@ def enemy_shoot(hero, shots):
         y1 = -6
         s = True
         shoots = []
+        hero.weapon.sound.play()
         if hero.direction:
             s = Shot((x + 100, y + y1), (x + hero.wx_l, y + y1), hero.weapon.hit)
             if hero.weapon.bullet_num != 1:

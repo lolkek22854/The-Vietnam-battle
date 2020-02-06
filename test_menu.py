@@ -220,6 +220,7 @@ def main():
                         down = True
                     if e.type == KEYDOWN and e.key == K_r:
                         hero.weapon.reload()
+                        hero.weapon.reload_sound.play()
 
                     if e.type == KEYDOWN and e.key == K_e:
                         for b in buttons:
@@ -231,6 +232,7 @@ def main():
                         hero.perks -= 1
                         x, y = hero.rect.center
                         beacon = Beacon(x, y)
+                        beacon.direction = hero.direction
                         beacon.spx = 20
                         beacon.spy = 10
                         beacon.sound.play()
@@ -293,8 +295,12 @@ def main():
                 if beacon != -1:
                     # print(beacon.spx)
                     if beacon.change_flag:
-                        beacon.rect.x -= beacon.spx
-                        beacon.spx -= 1
+                        if not beacon.direction:
+                            beacon.rect.x -= beacon.spx
+                            beacon.spx -= 1
+                        else:
+                            beacon.rect.x += beacon.spx
+                            beacon.spx -= 1
                         beacon.rect.y -= beacon.spy
                         beacon.spy -= 1
                     screen.blit(beacon.image, camera.apply(beacon))
