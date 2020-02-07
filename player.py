@@ -36,6 +36,7 @@ class Player(sprite.Sprite):
         self.xvel = 0  # скорость перемещения. 0 - стоять на месте
         self.startX = x  # Начальная позиция Х, пригодится когда будем переигрывать уровень
         self.startY = y
+        self.hit_sound = mixer.Sound('sounds/hit.ogg')
         self.speed = 7
         self.hp = 40
         self.wx_r = -20
@@ -44,6 +45,7 @@ class Player(sprite.Sprite):
         self.perks = 1
         self.dead_count = 10
         self.is_alive = True
+        self.died = True
         self.health = 100
         self.weapon = self.weapons[2]
         self.hide = False
@@ -151,6 +153,11 @@ class Player(sprite.Sprite):
         self.collide(self.xvel, 0, platforms, stairs, up, down)
         self.image.set_colorkey((255, 255, 255))
 
+    def die(self):
+        if self.died:
+            self.died = False
+            p = mixer.Sound('sounds/dead.ogg')
+            p.play()
     def collide(self, xvel, yvel, platforms, stairs, up, down):
         for p in platforms:
             if sprite.collide_rect(self, p):

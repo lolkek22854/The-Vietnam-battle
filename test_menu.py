@@ -61,7 +61,6 @@ def main():
         if stage == 'menu':
             stage, run = menu(screen, run)
 
-
         if stage == 'levels':
             running = True
             pos_move = (0, 0)
@@ -303,22 +302,21 @@ def main():
                             beacon.spy = -6
                         if beacon.spx < 0:
                             beacon.spx = 0
+                            for p in platforms:
+                                if p.rect.colliderect(beacon.rect):
+                                    beacon.spy = 0
+                                    beacon.spx = 0
+                                    beacon.change_flag = False
+                                    pos_call = beacon.rect.center
+                                    hel = Helicopter(pos_call[0] - 1000, pos_call[1] - 1000)
+                                    hel.sound.play()
                         beacon.rect.y -= beacon.spy
                         beacon.spy -= 1
-                        for p in platforms:
-                            if p.rect.colliderect(beacon.rect):
-                                beacon.spy = 0
-                                beacon.spx = 0
-                                beacon.change_flag = False
-                                pos_call = beacon.rect.center
-                                hel = Helicopter(pos_call[0] - 1000, pos_call[1] - 1000)
-                                hel.sound.play()
                     else:
                         beacon.dead_frames -= 1
                     screen.blit(beacon.image, camera.apply(beacon))
                     if beacon.dead_frames < 0:
                         beacon = -1
-
 
                 if hel != -1:
                     # print('g')
@@ -409,6 +407,7 @@ def main():
                         enemy_bullits.remove(b)
                     if b.collide([hero]):
                         hero.hp -= b.damage
+                        hero.hit_sound.play()
                         try:
                             enemy_bullits.remove(b)
                         except:
@@ -424,6 +423,7 @@ def main():
 
                 if hero.hp <= 0:
                     hero_alive = False
+                    hero.die()
                     udied(screen)
 
                 for e in ends:
